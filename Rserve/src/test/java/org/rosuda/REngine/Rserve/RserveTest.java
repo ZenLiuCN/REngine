@@ -50,7 +50,7 @@ public class RserveTest {
 
   @BeforeClass
   static public void startUpRserve() throws RserveException {
-      if (!org.rosuda.REngine.Rserve.StartRserve.checkLocalRserve())
+      if (!StartRserve.checkLocalRserve())
 	  fail("cannot start local Rserve for tests");
   }
 
