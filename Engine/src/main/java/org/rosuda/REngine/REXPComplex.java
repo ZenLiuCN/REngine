@@ -64,4 +64,9 @@ public class REXPComplex extends REXPVector {
         if (i < payload.length) sb.append(",..");
         return sb.toString()+"}";
     }
+
+    @Override
+    public Complex[] asComplexes() throws REXPMismatchException {
+        return payload;
+    }
 }
