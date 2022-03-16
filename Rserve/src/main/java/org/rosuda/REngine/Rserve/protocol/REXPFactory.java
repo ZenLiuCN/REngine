@@ -120,6 +120,8 @@ public class REXPFactory {
 			type = XT_RAW;
 		} else if (r instanceof REXPLogical) {
 			type = XT_ARRAY_BOOL;
+		} else if (r instanceof REXPComplex) {
+			type = XT_ARRAY_CPLX;
 		} else {
 			// throw new REXPMismatchException(r, "decode");
 			System.err.println("*** REXPFactory unable to interpret "+r);
@@ -170,6 +172,24 @@ public class REXPFactory {
 				o=eox;
 			}
 			cont = new REXPDouble(d, getAttr());
+			return o;
+		}
+        if (xt==XT_ARRAY_CPLX) { //TODO added
+			int as=(eox-o)/16,i=0;
+			Complex[] d=new Complex[as];
+            double o1,o2;
+			while (o<eox) {
+                o1=Double.longBitsToDouble(RTalk.getLong(buf,o));
+                o2=Double.longBitsToDouble(RTalk.getLong(buf,o));
+				d[i]=new Complex(o1,o2);
+				o+=16;
+				i++;
+			}
+			if (o!=eox) {
+				System.err.println("Warning: complex array SEXP size mismatch\n");
+				o=eox;
+			}
+			cont = new REXPComplex(d, getAttr());
 			return o;
 		}
 		if (xt==XT_BOOL) {
@@ -474,7 +494,7 @@ public class REXPFactory {
 					break;
 			case XT_ARRAY_INT: l+=cont.asIntegers().length*4; break;
 			case XT_ARRAY_DOUBLE: l+=cont.asDoubles().length*8; break;
-			case XT_ARRAY_CPLX: l+=cont.asDoubles().length*8; break;
+			case XT_ARRAY_CPLX: l+=cont.asComplexes().length*16; break;//TODO
 			case XT_ARRAY_BOOL: l += cont.asBytes().length + 4; if ((l & 3) > 0) l = l - (l & 3) + 4; break;
 			case XT_LIST_TAG:
 			case XT_LIST_NOTAG:
@@ -557,6 +577,13 @@ public class REXPFactory {
 				break;
 			case XT_INT: RTalk.setInt(cont.asInteger(),buf,off); break;
 			case XT_DOUBLE: RTalk.setLong(Double.doubleToRawLongBits(cont.asDouble()),buf,off); break;
+            case XT_ARRAY_CPLX: //TODO
+                Complex[] cpx= cont.asComplexes();
+                for (int i = 0; i < cpx.length; i++) {
+                    RTalk.setLong(Double.doubleToRawLongBits(cpx[i].getReal()),buf,off);
+                    RTalk.setLong(Double.doubleToRawLongBits(cpx[i].getImaginary()),buf,off);
+                }
+                break;
 			case XT_ARRAY_INT:
 			{
 				int ia[]=cont.asIntegers();

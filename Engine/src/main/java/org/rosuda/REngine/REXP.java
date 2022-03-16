@@ -98,6 +98,7 @@ public class REXP {
 	/** convenience method corresponding to <code>asIntegers()[0]</code>
 	 @return first entry returned by {@link #asInteger} */
 	public int asInteger() throws REXPMismatchException { int[] i = asIntegers(); return i[0]; }
+
 	/** convenience method corresponding to <code>asDoubles()[0]</code>
 	 @return first entry returned by {@link #asDoubles} */
 	public double asDouble() throws REXPMismatchException { double[] d = asDoubles(); return d[0]; }
@@ -270,4 +271,44 @@ public class REXP {
 	
 	/** specifies how many items of a vector or list will be displayed in {@link #toDebugString} */
 	public static int maxDebugItems = 32;
+
+    public Complex asComplex() throws REXPMismatchException { Complex[] i = asComplexes(); return i[0]; }
+    public Complex[] asComplexes() throws REXPMismatchException { throw new REXPMismatchException(this, "complex"); }
+    public static REXP createComplexMatrix(Complex[][] matrix) {
+        int m = 0, n = 0;
+        Complex a[];
+        if (matrix != null && matrix.length != 0 && matrix[0].length != 0) {
+            m = matrix.length;
+            n = matrix[0].length;
+            a = new Complex[m * n];
+            int k = 0;
+            for (int j = 0; j < n; j++)
+                for (int i = 0; i < m; i++)
+                    a[k++] = matrix[i][j];
+        } else a = new Complex[0];
+        return new REXPComplex(a,
+            new REXPList(
+                new RList(
+                    new REXP[] { new REXPInteger(new int[] { m, n }) },
+                    new String[] { "dim" })
+            )
+        );
+    }
+    public Complex[][] asComplexMatrix() throws REXPMismatchException {
+        Complex[] ct = asComplexes();
+        REXP dim = getAttribute("dim");
+        if (dim == null) throw new REXPMismatchException(this, "matrix (dim attribute missing)");
+        int[] ds = dim.asIntegers();
+        if (ds.length != 2) throw new REXPMismatchException(this, "matrix (wrong dimensionality)");
+        int m = ds[0], n = ds[1];
+
+        Complex[][] r = new Complex[m][n];
+        // R stores matrices as matrix(c(1,2,3,4),2,2) = col1:(1,2), col2:(3,4)
+        // we need to copy everything, since we create 2d array from 1d array
+        int k = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                r[j][i] = ct[k++];
+        return r;
+    }
 }

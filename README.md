@@ -10,3 +10,9 @@ The sources can be compiled simply by using
 Maven is also supported (including unit tests) and can be run using `make mvn.pkg`. If you want to run `mvn` by hamd you can do so, but note that the Maven project requires a different directory structure which can be created by calling `mkmvn.sh` (unix only as it uses symlinks).
 
 [![REngine Actions Status](https://github.com/s-u/REngine/workflows/REngine/badge.svg)](https://github.com/s-u/REngine/actions)
+
+# Modified Fork
+1. structural as common multi module maven project (except JRI Engine).
+2. comment out source process and release config (so it should never publish directly).
+3. add RComplex to handle type 38 (REngine) which is missing.
+4. keep other original code untouched.
